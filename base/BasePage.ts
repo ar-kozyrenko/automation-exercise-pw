@@ -12,4 +12,8 @@ export class BasePage {
     async openPage(url: string) {
         await this.page.goto(url)
     }
+
+    async clickContinueButton() {
+        await this.continueButton.click()
+    }
 }

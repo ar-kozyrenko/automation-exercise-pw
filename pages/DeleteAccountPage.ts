@@ -1,9 +1,9 @@
 import { Page, Locator } from '@playwright/test'
 
 export class DeleteAccountPage {
-    acountDeletedHeading: Locator
+    accountDeletedHeading: Locator
 
     constructor(page: Page) {
-        this.acountDeletedHeading = page.getByTestId('account-deleted')
+        this.accountDeletedHeading = page.getByTestId('account-deleted')
     }
 }

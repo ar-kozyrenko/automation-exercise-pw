@@ -18,6 +18,9 @@ export class NavBar {
     async clickSignUpLogInButton() {
         await this.signUpLogInButton.click()
     }
+    async clickDeleteAccountButton() {
+        await this.deleteAccountButton.click()
+    }
 
     getLoggedInAsUserButton(username: string): Locator {
         return this.page.getByText(`Logged in as ${username}`)
