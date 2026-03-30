@@ -10,7 +10,7 @@ test.describe('User registration tests', () => {
             await pageManager.basePage.openPage('/')
             await pageManager.navBar.clickSignUpLogInButton()
             await expect(pageManager.loginPage.signUpHeading).toBeVisible()
-            await pageManager.loginPage.fillSignUpForm(signUpData)
+            await pageManager.loginPage.submitSignUpForm(signUpData)
             await expect(
                 pageManager.signUpPage.accountInfoHeading
             ).toBeVisible()
