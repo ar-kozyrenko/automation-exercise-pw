@@ -1,5 +1,5 @@
 import { Page, Locator } from '@playwright/test'
-import { SignUpFormData } from '../types/forms'
+import { LogInFormData, SignUpFormData } from '../types/forms'
 
 export class LoginPage {
     //SignUp
@@ -13,6 +13,7 @@ export class LoginPage {
     logInPassword: Locator
     logInButton: Locator
     logInHeading: Locator
+    loginErrorMessage: Locator
 
     constructor(page: Page) {
         //SignUp
@@ -26,11 +27,20 @@ export class LoginPage {
         this.logInPassword = page.getByTestId('login-password')
         this.logInButton = page.getByTestId('login-button')
         this.logInHeading = page.getByText('Login to your account')
+        this.loginErrorMessage = page.getByText(
+            'Your email or password is incorrect!'
+        )
     }
 
     async submitSignUpForm(data: SignUpFormData): Promise<void> {
         await this.signUpName.fill(data.name)
         await this.signUpEmail.fill(data.email)
         await this.signUpButton.click()
+    }
+
+    async submitLogInForm(data: LogInFormData): Promise<void> {
+        await this.logInEmail.fill(data.email)
+        await this.logInPassword.fill(data.password)
+        await this.logInButton.click()
     }
 }

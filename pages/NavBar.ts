@@ -4,6 +4,7 @@ export class NavBar {
     page: Page
     signUpLogInButton: Locator
     deleteAccountButton: Locator
+    logOutButton: Locator
 
     constructor(page: Page) {
         this.page = page
@@ -13,16 +14,21 @@ export class NavBar {
         this.deleteAccountButton = page.getByRole('link', {
             name: 'Delete Account',
         })
+        this.logOutButton = page.getByRole('link', { name: 'Logout' })
     }
 
-    async clickSignUpLogInButton() {
+    async clickSignUpLogInButton(): Promise<void> {
         await this.signUpLogInButton.click()
     }
-    async clickDeleteAccountButton() {
+    async clickDeleteAccountButton(): Promise<void> {
         await this.deleteAccountButton.click()
     }
 
     getLoggedInAsUserButton(username: string): Locator {
         return this.page.getByText(`Logged in as ${username}`)
+    }
+
+    async clickLogOutButton(): Promise<void> {
+        await this.logOutButton.click()
     }
 }

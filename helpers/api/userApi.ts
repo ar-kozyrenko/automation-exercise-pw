@@ -5,7 +5,7 @@ import {
 } from '../../test-data/register-user.data'
 import { expect } from '@playwright/test'
 
-export async function createUser(request: APIRequestContext): Promise<void> {
+export async function registerUser(request: APIRequestContext): Promise<void> {
     const response = await request.post(
         'https://automationexercise.com/api/createAccount',
         {
@@ -16,6 +16,7 @@ export async function createUser(request: APIRequestContext): Promise<void> {
                 firstname: registrationData.firstName,
                 lastname: registrationData.lastName,
                 address1: registrationData.address,
+                country: registrationData.country,
                 zipcode: registrationData.zipCode,
                 state: registrationData.state,
                 city: registrationData.city,
@@ -23,7 +24,10 @@ export async function createUser(request: APIRequestContext): Promise<void> {
             },
         }
     )
-    expect(response.status()).toBe(201)
+    console.log(`User-email: ${signUpData.email}`)
+    console.log(`User-password: ${registrationData.password}`)
+    console.log(`User-name: ${registrationData.name}`)
+    expect(response.status()).toBe(200)
     const responseBody = await response.json()
     expect(responseBody.message).toBe('User created!')
 }
@@ -38,7 +42,7 @@ export async function deleteUser(request: APIRequestContext): Promise<void> {
             },
         }
     )
-    expect(response.status()).toBe('200')
+    expect(response.status()).toBe(200)
     const responseBody = await response.json()
     expect(responseBody.message).toBe('Account deleted!')
 }
