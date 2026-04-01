@@ -7,6 +7,7 @@ export class LoginPage {
     signUpName: Locator
     signUpButton: Locator
     signUpHeading: Locator
+    signUpErrorMessage: Locator
 
     //Login
     logInEmail: Locator
@@ -21,6 +22,7 @@ export class LoginPage {
         this.signUpName = page.getByTestId('signup-name')
         this.signUpButton = page.getByTestId('signup-button')
         this.signUpHeading = page.getByText('New User Signup!')
+        this.signUpErrorMessage = page.getByText('Email Address already exist!')
 
         //LogIn
         this.logInEmail = page.getByTestId('login-email')
