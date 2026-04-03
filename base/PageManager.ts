@@ -4,6 +4,7 @@ import { LoginPage } from '../pages/LoginPage'
 import { NavBar } from '../pages/NavBar'
 import { SignUpPage } from '../pages/SignUpPage'
 import { BasePage } from './BasePage'
+import { ContactUsPage } from '../pages/ContactUsPage'
 
 export class PageManager {
     deleteAccountPage: DeleteAccountPage
@@ -11,6 +12,7 @@ export class PageManager {
     navBar: NavBar
     signUpPage: SignUpPage
     basePage: BasePage
+    contactUsPage: ContactUsPage
 
     constructor(page: Page) {
         this.deleteAccountPage = new DeleteAccountPage(page)
@@ -18,5 +20,6 @@ export class PageManager {
         this.navBar = new NavBar(page)
         this.signUpPage = new SignUpPage(page)
         this.basePage = new BasePage(page)
+        this.contactUsPage = new ContactUsPage(page)
     }
 }

@@ -41,3 +41,10 @@ export type RegistrationFormData = {
     zipCode: string
     mobileNumber: string
 }
+
+export type ContactUsFormData = {
+    name: string
+    email: string
+    subject: string
+    message: string
+}
