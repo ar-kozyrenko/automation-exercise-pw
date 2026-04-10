@@ -2,47 +2,36 @@ import { test } from '../fixtures/baseFixture'
 import { expect } from '@playwright/test'
 
 test('Contact Us Form', async ({ pageManager, page }) => {
-    // Block ads
-    await page.route('**/*doubleclick*', (route) => route.abort())
-    await page.route('**/*googlesyndication*', (route) => route.abort())
-    await page.route('**/*googleads*', (route) => route.abort())
+    page.on('dialog', (dialog) => dialog.accept())
 
-    // ✅ ГЛАВНОЕ — глобальный обработчик диалога
-    page.on('dialog', async (dialog) => {
-        await dialog.accept()
-    })
-
-    // Open page
     await pageManager.basePage.openPage('/')
     await pageManager.navBar.clickContactUsButton()
-
-    // Verify page
     await expect(pageManager.contactUsPage.getInTouchTitle).toBeVisible()
-
-    // Fill form
     await pageManager.contactUsPage.fillContactForm({
         name: 'John Doe',
         email: 'john@example.com',
         subject: 'Test Subject',
         message: 'Hello, this is a test message',
     })
-
     await pageManager.contactUsPage.uploadImg()
 
-    await page.waitForTimeout(500) // 0.5 секунды
-    // ✅ ВАЖНО: обычный клик (НЕ requestSubmit)
+    // Wait until jQuery registers the submit handler on the form before clicking Submit
+    await page.waitForFunction(() => {
+        const form = document.querySelector('#contact-us-form') as any
+        return (
+            form &&
+            (window as any).jQuery &&
+            (window as any).jQuery._data(form, 'events')?.submit
+        )
+    })
+
     await pageManager.contactUsPage.clickSubmitButton()
-
-    // ✅ Ждём именно текст (а не visible)
-    await expect(pageManager.contactUsPage.successMessage).toHaveText(
-        /Success/i,
-        { timeout: 20000 }
+    await expect(pageManager.contactUsPage.successMessage).toBeVisible({
+        timeout: 10000,
+    })
+    await expect(pageManager.contactUsPage.successMessage).toContainText(
+        'Success'
     )
-
-    // Проверяем что форма исчезла
-    //  await expect(page.locator('#form-section')).not.toBeVisible()
-
-    // Back to home
     await pageManager.contactUsPage.clickHomeButton()
     await expect(page).toHaveURL('/')
 })

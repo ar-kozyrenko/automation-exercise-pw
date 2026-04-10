@@ -6,6 +6,8 @@ export class NavBar {
     deleteAccountButton: Locator
     logOutButton: Locator
     contactUsButton: Locator
+    testCasesButton: Locator
+    productsButton: Locator
 
     constructor(page: Page) {
         this.page = page
@@ -17,6 +19,10 @@ export class NavBar {
         })
         this.logOutButton = page.getByRole('link', { name: 'Logout' })
         this.contactUsButton = page.getByRole('link', { name: 'Contact us' })
+        this.testCasesButton = page
+            .locator('#header')
+            .getByRole('link', { name: 'Test Cases' })
+        this.productsButton = page.getByRole('link', { name: 'Products' })
     }
 
     async clickSignUpLogInButton(): Promise<void> {
@@ -35,5 +41,11 @@ export class NavBar {
     }
     async clickContactUsButton(): Promise<void> {
         await this.contactUsButton.click()
+    }
+    async clickTestCasesButton(): Promise<void> {
+        await this.testCasesButton.click()
+    }
+    async clickProductsButton(): Promise<void> {
+        await this.productsButton.click()
     }
 }
