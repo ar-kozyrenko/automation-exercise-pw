@@ -1,30 +1,41 @@
 import { test } from '../fixtures/baseFixture'
 import { expect } from '@playwright/test'
-import { signUpData, registrationData } from '../test-data/register-user.data'
+import {
+    generateSignUpData,
+    generateRegistrationData,
+    createUserApi,
+} from '../test-data/register-user.data'
 import { registerUser, deleteUser } from '../helpers/api/userApi'
-import { SignUpFormData } from '../types/forms'
+import { SignUpFormData, UserApi } from '../types/forms'
 
 test.describe('User registration - positive', () => {
     test(
         'Positive user registration and delete',
         { tag: ['@smoke', '@regression'] },
         async ({ pageManager }) => {
+            const userSignUpData = generateSignUpData()
+            const userRegistrationData = generateRegistrationData({
+                name: userSignUpData.name,
+            })
+
             await pageManager.basePage.openPage('/')
             await pageManager.navBar.clickSignUpLogInButton()
             await expect(pageManager.loginPage.signUpHeading).toBeVisible()
-            await pageManager.loginPage.submitSignUpForm(signUpData)
+            await pageManager.loginPage.submitSignUpForm(userSignUpData)
             await expect(
-                pageManager.signUpPage.accountInfoHeading
+                pageManager.registerPage.accountInfoHeading
             ).toBeVisible()
-            await pageManager.signUpPage.fillRegistrationForm(registrationData)
-            await pageManager.signUpPage.clickCreateAccountButton()
+            await pageManager.registerPage.fillRegistrationForm(
+                userRegistrationData
+            )
+            await pageManager.registerPage.clickCreateAccountButton()
             await expect(
-                pageManager.signUpPage.accountCreatedHeading
+                pageManager.registerPage.accountCreatedHeading
             ).toBeVisible()
             await pageManager.basePage.clickContinueButton()
             await expect(
                 pageManager.navBar.getLoggedInAsUserButton(
-                    registrationData.name
+                    userRegistrationData.name
                 )
             ).toBeVisible()
             await pageManager.navBar.clickDeleteAccountButton()
@@ -37,20 +48,23 @@ test.describe('User registration - positive', () => {
 })
 
 test.describe('User registration - negative', () => {
+    let user: UserApi
+
     test.beforeEach(async ({ request }) => {
-        await registerUser(request)
+        user = createUserApi()
+        await registerUser(request, user)
     })
 
     test.afterEach(async ({ request }) => {
-        await deleteUser(request)
+        await deleteUser(request, user)
     })
     test(
         'Register User with existing email',
         { tag: ['@regression'] },
         async ({ pageManager }) => {
             const existingUserData: SignUpFormData = {
-                name: registrationData.name,
-                email: signUpData.email,
+                name: user.name,
+                email: user.email,
             }
             await pageManager.basePage.openPage('/')
             await pageManager.navBar.clickSignUpLogInButton()

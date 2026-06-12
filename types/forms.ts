@@ -8,7 +8,7 @@ export type LogInFormData = {
     password: string
 }
 
-type BirthDate = {
+export type BirthDate = {
     day: string
     month: string
     year: string
@@ -47,4 +47,28 @@ export type ContactUsFormData = {
     email: string
     subject: string
     message: string
+}
+export type UserApi = {
+    name: string
+    email: string
+    password: string
+    firstName: string
+    lastName: string
+    address1: string
+    country: string
+    zipcode: string
+    state: string
+    city: string
+    mobileNumber: string
+}
+
+export type Expiration = {
+    month: string
+    year: string
+}
+export type PaymentFormData = {
+    nameOnCard: string
+    cardNumber: string
+    cvc: string
+    expiration: Expiration
 }

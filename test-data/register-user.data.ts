@@ -1,31 +1,68 @@
-import { faker } from '@faker-js/faker'
-import { SignUpFormData, RegistrationFormData, Country } from '../types/forms'
+import {
+    SignUpFormData,
+    RegistrationFormData,
+    Country,
+    UserApi,
+} from '../types/forms'
+import {
+    generateAddress,
+    generateBirthDate,
+    generateCity,
+    generateCompanyName,
+    generateEmail,
+    generateFirstName,
+    generateLastName,
+    generateMobileNumber,
+    generatePassword,
+    generateSecondaryAddress,
+    generateState,
+    generateUserName,
+    generateZipCode,
+} from './general.test-data'
 
-const name = faker.internet.username()
-
-export const signUpData: SignUpFormData = {
-    name,
-    email: faker.internet.email(),
+export function generateSignUpData(): SignUpFormData {
+    return {
+        name: generateUserName(),
+        email: generateEmail(),
+    }
 }
-export const registrationData: RegistrationFormData = {
-    title: 'Mr.',
-    name,
-    password: faker.internet.password(),
-    birthDate: {
-        day: String(faker.number.int({ min: 1, max: 28 })),
-        month: faker.date.month(),
-        year: String(faker.number.int({ min: 1960, max: 2000 })),
-    },
-    newsletter: true,
-    offers: false,
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
-    company: faker.company.name(),
-    address: faker.location.streetAddress(),
-    address2: faker.location.secondaryAddress(),
-    country: Country.Canada,
-    state: faker.location.state(),
-    city: faker.location.city(),
-    zipCode: faker.location.zipCode('#####'),
-    mobileNumber: faker.phone.number({ style: 'national' }),
+
+export function generateRegistrationData(
+    overrides: Partial<RegistrationFormData> = {}
+): RegistrationFormData {
+    return {
+        title: 'Mr.',
+        name: generateUserName(),
+        password: generatePassword(),
+        birthDate: generateBirthDate(),
+        newsletter: true,
+        offers: false,
+        firstName: generateFirstName(),
+        lastName: generateLastName(),
+        company: generateCompanyName(),
+        address: generateAddress(),
+        address2: generateSecondaryAddress(),
+        country: Country.Canada,
+        state: generateState(),
+        city: generateCity(),
+        zipCode: generateZipCode(),
+        mobileNumber: generateMobileNumber(),
+
+        ...overrides,
+    }
+}
+export function createUserApi(): UserApi {
+    return {
+        name: generateUserName(),
+        email: generateEmail(),
+        password: generatePassword(),
+        firstName: generateFirstName(),
+        lastName: generateLastName(),
+        address1: generateAddress(),
+        country: Country.Canada,
+        zipcode: generateZipCode(),
+        state: generateState(),
+        city: generateCity(),
+        mobileNumber: generateMobileNumber(),
+    }
 }

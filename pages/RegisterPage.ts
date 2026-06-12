@@ -1,7 +1,7 @@
 import { Page, Locator } from '@playwright/test'
 import { RegistrationFormData } from '../types/forms'
 
-export class SignUpPage {
+export class RegisterPage {
     accountInfoHeading: Locator
     mrRadio: Locator
     mrsRadio: Locator

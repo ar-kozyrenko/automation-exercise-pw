@@ -8,6 +8,7 @@ export class NavBar {
     contactUsButton: Locator
     testCasesButton: Locator
     productsButton: Locator
+    cartButton: Locator
 
     constructor(page: Page) {
         this.page = page
@@ -23,6 +24,12 @@ export class NavBar {
             .locator('#header')
             .getByRole('link', { name: 'Test Cases' })
         this.productsButton = page.getByRole('link', { name: 'Products' })
+        // this.cartButton = page.getByRole('link', {
+        //     name: 'Cart',
+        //     exact: true,
+        //})
+
+        this.cartButton = page.locator('.navbar-nav a[href="/view_cart"]')
     }
 
     async clickSignUpLogInButton(): Promise<void> {
@@ -47,5 +54,9 @@ export class NavBar {
     }
     async clickProductsButton(): Promise<void> {
         await this.productsButton.click()
+    }
+    async clickCartButton(): Promise<void> {
+        await this.cartButton.waitFor({ state: 'visible', timeout: 5000 })
+        await this.cartButton.click()
     }
 }
