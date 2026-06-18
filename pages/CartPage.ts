@@ -1,5 +1,6 @@
 import { Page, Locator } from '@playwright/test'
 import { CartTable } from './components/CartTable'
+import { TIMEOUT } from 'node:dns'
 
 export class CartPage {
     proceedToCheckoutLink: Locator

@@ -305,49 +305,56 @@ test.describe('Checkout - positive', () => {
             })
         }
     )
-    test('Verify address details in checkout page', async ({
-        pageManager,
-        page,
-    }) => {
-        const userSignUpData = generateSignUpData()
-        const userRegistrationData = generateRegistrationData({
-            name: userSignUpData.name,
-        })
-        await test.step('Register user', async () => {
-            await pageManager.basePage.openPage('/')
-            await pageManager.navBar.clickSignUpLogInButton()
-            await pageManager.loginPage.submitSignUpForm(userSignUpData)
-            await pageManager.registerPage.fillRegistrationForm(
-                userRegistrationData
-            )
-            await pageManager.registerPage.clickCreateAccountButton()
-            await expect(
-                pageManager.registerPage.accountCreatedHeading
-            ).toBeVisible()
-            await pageManager.basePage.clickContinueButton()
-            await expect(
-                pageManager.navBar.getLoggedInAsUserButton(
-                    userRegistrationData.name
+    test(
+        'Verify address details in checkout page',
+        { tag: ['@smoke', '@regression'] },
+        async ({ pageManager, page }) => {
+            const userSignUpData = generateSignUpData()
+            const userRegistrationData = generateRegistrationData({
+                name: userSignUpData.name,
+            })
+            await test.step('Register user', async () => {
+                await pageManager.basePage.openPage('/')
+                await pageManager.navBar.clickSignUpLogInButton()
+                await pageManager.loginPage.submitSignUpForm(userSignUpData)
+                await pageManager.registerPage.fillRegistrationForm(
+                    userRegistrationData
                 )
-            ).toBeVisible()
-        })
-        await test.step('Add product to cart', async () => {
-            await pageManager.homePage.productSection.addProductToCart(0)
-            await pageManager.addedToCartModal.clickViewCartButton()
-            await expect(page).toHaveURL(/\/view_cart\/?$/)
-        })
+                await pageManager.registerPage.clickCreateAccountButton()
+                await expect(
+                    pageManager.registerPage.accountCreatedHeading
+                ).toBeVisible()
+                await pageManager.basePage.clickContinueButton()
+                await expect(
+                    pageManager.navBar.getLoggedInAsUserButton(
+                        userRegistrationData.name
+                    )
+                ).toBeVisible()
+            })
+            await test.step('Add product to cart', async () => {
+                await pageManager.homePage.productSection.addProductToCart(0)
+                await pageManager.addedToCartModal.clickViewCartButton()
+                await expect(page).toHaveURL(/\/view_cart\/?$/)
+            })
 
-        await test.step('Verify checkout details', async () => {
-            await pageManager.cartPage.clickProceedToCheckout()
-            await expect(page).toHaveURL(/\/checkout\/?$/)
-            await pageManager.checkoutPage.assertDeliveryAddressContains(
-                userRegistrationData
-            )
-            await pageManager.checkoutPage.assertBillingAddressContains(
-                userRegistrationData
-            )
-        })
-    })
+            await test.step('Verify checkout details', async () => {
+                await expect(
+                    pageManager.cartPage.proceedToCheckoutLink
+                ).toBeVisible()
+                await expect(
+                    pageManager.cartPage.proceedToCheckoutLink
+                ).toBeEnabled()
+                await pageManager.cartPage.clickProceedToCheckout()
+                await expect(page).toHaveURL(/\/checkout\/?$/)
+                await pageManager.checkoutPage.assertDeliveryAddressContains(
+                    userRegistrationData
+                )
+                await pageManager.checkoutPage.assertBillingAddressContains(
+                    userRegistrationData
+                )
+            })
+        }
+    )
 
     test(
         'Download Invoice after purchase order',

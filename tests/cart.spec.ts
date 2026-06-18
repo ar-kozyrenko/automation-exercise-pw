@@ -81,77 +81,82 @@ test(
         )
     }
 )
-test('Search Products and Verify Cart After Login', async ({
-    pageManager,
-    request,
-}) => {
-    const userData = createUserApi()
+test(
+    'Search Products and Verify Cart After Login',
+    { tag: ['@smoke', '@regression'] },
+    async ({ pageManager, request }) => {
+        const userData = createUserApi()
 
-    await test.step('Register user via API', async () => {
-        await registerUser(request, userData)
-    })
-
-    await test.step('Open Products page', async () => {
-        await pageManager.basePage.openPage('/')
-        await pageManager.navBar.clickProductsButton()
-
-        await expect(pageManager.productsPage.allProductsTitle).toBeVisible()
-    })
-
-    const searchedProduct = 'top'
-    let searchResults: string[] = []
-
-    await test.step('Search products', async () => {
-        await pageManager.productsPage.submitSearch(searchedProduct)
-
-        searchResults = await pageManager.productsPage.getAllProductsNames()
-
-        expect(searchResults.length).toBeGreaterThan(0)
-
-        const normalizedSearch = normalizeText(searchedProduct)
-
-        const matchedProducts = searchResults.filter((name) =>
-            normalizeText(name).includes(normalizedSearch)
-        )
-
-        expect(matchedProducts.length).toBeGreaterThan(0)
-    })
-
-    await test.step('Add search results to cart', async () => {
-        for (let i = 0; i < searchResults.length; i++) {
-            await pageManager.productsPage.productSection.addProductToCart(i)
-            await pageManager.addedToCartModal.clickContinueShoppingButton()
-        }
-    })
-
-    await test.step('Verify products in cart', async () => {
-        await pageManager.navBar.clickCartButton()
-
-        const inCartProducts =
-            await pageManager.cartPage.cartTable.getAllProductsNames()
-
-        expect(inCartProducts).toEqual(searchResults)
-    })
-
-    await test.step('Login with registered user', async () => {
-        await pageManager.navBar.clickSignUpLogInButton()
-
-        await pageManager.loginPage.submitLogInForm({
-            email: userData.email,
-            password: userData.password,
+        await test.step('Register user via API', async () => {
+            await registerUser(request, userData)
         })
-    })
 
-    await test.step('Verify cart after login', async () => {
-        await pageManager.navBar.clickCartButton()
+        await test.step('Open Products page', async () => {
+            await pageManager.basePage.openPage('/')
+            await pageManager.navBar.clickProductsButton()
 
-        const inCartProductsAfterLogin =
-            await pageManager.cartPage.cartTable.getAllProductsNames()
+            await expect(
+                pageManager.productsPage.allProductsTitle
+            ).toBeVisible()
+        })
 
-        expect(inCartProductsAfterLogin).toEqual(searchResults)
-    })
+        const searchedProduct = 'top'
+        let searchResults: string[] = []
 
-    await test.step('Delete user via API', async () => {
-        await deleteUser(request, userData)
-    })
-})
+        await test.step('Search products', async () => {
+            await pageManager.productsPage.submitSearch(searchedProduct)
+
+            searchResults = await pageManager.productsPage.getAllProductsNames()
+
+            expect(searchResults.length).toBeGreaterThan(0)
+
+            const normalizedSearch = normalizeText(searchedProduct)
+
+            const matchedProducts = searchResults.filter((name) =>
+                normalizeText(name).includes(normalizedSearch)
+            )
+
+            expect(matchedProducts.length).toBeGreaterThan(0)
+        })
+
+        await test.step('Add search results to cart', async () => {
+            for (let i = 0; i < searchResults.length; i++) {
+                await pageManager.productsPage.productSection.addProductToCart(
+                    i
+                )
+                await pageManager.addedToCartModal.clickContinueShoppingButton()
+            }
+        })
+
+        await test.step('Verify products in cart', async () => {
+            await pageManager.navBar.clickCartButton()
+
+            const inCartProducts =
+                await pageManager.cartPage.cartTable.getAllProductsNames()
+
+            expect(inCartProducts).toEqual(searchResults)
+        })
+
+        await test.step('Login with registered user', async () => {
+            await pageManager.navBar.clickSignUpLogInButton()
+
+            await pageManager.loginPage.submitLogInForm({
+                email: userData.email,
+                password: userData.password,
+            })
+        })
+
+        await test.step('Verify cart after login', async () => {
+            await pageManager.navBar.clickCartButton()
+
+            const inCartProductsAfterLogin =
+                await pageManager.cartPage.cartTable.getAllProductsNames()
+
+            expect(inCartProductsAfterLogin).toEqual(searchResults)
+        })
+
+        await test.step('Delete user via API', async () => {
+            await deleteUser(request, userData)
+        })
+    }
+)
