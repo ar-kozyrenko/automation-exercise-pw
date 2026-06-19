@@ -1,15 +1,15 @@
-import { test } from '../fixtures/baseFixture'
+import { test } from '../../fixtures/baseFixture'
 import { expect } from '@playwright/test'
 import {
     generateSignUpData,
     generateRegistrationData,
-} from '../test-data/register-user.data'
+} from '../../test-data/register-user.data'
 import {
     generateRandomText,
     generatePaymentData,
-} from '../test-data/general.test-data'
+} from '../../test-data/general.test-data'
 import fs from 'fs'
-import { normalizePrice } from '../helpers/ui/text.helper'
+import { normalizePrice } from '../../helpers/ui/text.helper'
 import path from 'path'
 
 test.describe('Checkout - positive', () => {

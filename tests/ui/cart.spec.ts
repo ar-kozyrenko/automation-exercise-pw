@@ -1,8 +1,8 @@
-import { test } from '../fixtures/baseFixture'
+import { test } from '../../fixtures/baseFixture'
 import { expect } from '@playwright/test'
-import { normalizeText } from '../helpers/ui/text.helper'
-import { deleteUser, registerUser } from '../helpers/api/userApi'
-import { createUserApi } from '../test-data/register-user.data'
+import { normalizeText } from '../../helpers/ui/text.helper'
+import { deleteUser, registerUser } from '../../helpers/api/userApi'
+import { createUserApi } from '../../test-data/register-user.data'
 
 test(
     'Add Products in Cart',

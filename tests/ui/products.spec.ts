@@ -1,11 +1,11 @@
-import { test } from '../fixtures/baseFixture'
+import { test } from '../../fixtures/baseFixture'
 import { expect } from '@playwright/test'
-import { normalizeText } from '../helpers/ui/text.helper'
+import { normalizeText } from '../../helpers/ui/text.helper'
 import {
     generateEmail,
     generateFirstName,
     generateRandomText,
-} from '../test-data/general.test-data'
+} from '../../test-data/general.test-data'
 
 test(
     'Verify All Products and product detail page',

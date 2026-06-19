@@ -1,12 +1,12 @@
-import { test } from '../fixtures/baseFixture'
+import { test } from '../../fixtures/baseFixture'
 import { expect } from '@playwright/test'
 import {
     generateSignUpData,
     generateRegistrationData,
     createUserApi,
-} from '../test-data/register-user.data'
-import { registerUser, deleteUser } from '../helpers/api/userApi'
-import { SignUpFormData, UserApi } from '../types/forms'
+} from '../../test-data/register-user.data'
+import { registerUser, deleteUser } from '../../helpers/api/userApi'
+import { SignUpFormData, UserApi } from '../../types/forms'
 
 test.describe('User registration - positive', () => {
     test(

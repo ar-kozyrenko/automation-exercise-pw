@@ -1,8 +1,8 @@
-import { test } from '../fixtures/baseFixture'
+import { test } from '../../fixtures/baseFixture'
 import { expect } from '@playwright/test'
-import { createUserApi } from '../test-data/register-user.data'
-import { registerUser, deleteUser } from '../helpers/api/userApi'
-import { LogInFormData, UserApi } from '../types/forms'
+import { createUserApi } from '../../test-data/register-user.data'
+import { registerUser, deleteUser } from '../../helpers/api/userApi'
+import { LogInFormData, UserApi } from '../../types/forms'
 
 test.describe('LogIn - positive', () => {
     let userData: UserApi
