@@ -56,13 +56,13 @@ export function createUserApi(): UserApi {
         name: generateUserName(),
         email: generateEmail(),
         password: generatePassword(),
-        firstName: generateFirstName(),
-        lastName: generateLastName(),
+        firstname: generateFirstName(),
+        lastname: generateLastName(),
         address1: generateAddress(),
         country: Country.Canada,
         zipcode: generateZipCode(),
         state: generateState(),
         city: generateCity(),
-        mobileNumber: generateMobileNumber(),
+        mobile_number: generateMobileNumber(),
     }
 }

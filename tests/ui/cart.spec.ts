@@ -1,7 +1,5 @@
-import { test } from '../../fixtures/baseFixture'
-import { expect } from '@playwright/test'
-import { normalizeText } from '../../helpers/ui/text.helper'
-import { deleteUser, registerUser } from '../../helpers/api/userApi'
+import { test, expect } from '../../fixtures/baseFixture'
+import { normalizeText } from '../../helpers/text.helper'
 import { createUserApi } from '../../test-data/register-user.data'
 
 test(
@@ -84,12 +82,8 @@ test(
 test(
     'Search Products and Verify Cart After Login',
     { tag: ['@smoke', '@regression'] },
-    async ({ pageManager, request }) => {
+    async ({ pageManager, request, registeredUser }) => {
         const userData = createUserApi()
-
-        await test.step('Register user via API', async () => {
-            await registerUser(request, userData)
-        })
 
         await test.step('Open Products page', async () => {
             await pageManager.basePage.openPage('/')
@@ -153,10 +147,6 @@ test(
                 await pageManager.cartPage.cartTable.getAllProductsNames()
 
             expect(inCartProductsAfterLogin).toEqual(searchResults)
-        })
-
-        await test.step('Delete user via API', async () => {
-            await deleteUser(request, userData)
         })
     }
 )

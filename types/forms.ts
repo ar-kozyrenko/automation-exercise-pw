@@ -8,6 +8,11 @@ export type LogInFormData = {
     password: string
 }
 
+export type DeleteFormData = {
+    email: string
+    password: string
+}
+
 export type BirthDate = {
     day: string
     month: string
@@ -52,14 +57,14 @@ export type UserApi = {
     name: string
     email: string
     password: string
-    firstName: string
-    lastName: string
+    firstname: string
+    lastname: string
     address1: string
     country: string
     zipcode: string
     state: string
     city: string
-    mobileNumber: string
+    mobile_number: string
 }
 
 export type Expiration = {

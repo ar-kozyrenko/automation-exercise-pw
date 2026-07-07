@@ -1,11 +1,9 @@
-import { test } from '../../fixtures/baseFixture'
-import { expect } from '@playwright/test'
+import { test, expect } from '../../fixtures/baseFixture'
 import {
     generateSignUpData,
     generateRegistrationData,
     createUserApi,
 } from '../../test-data/register-user.data'
-import { registerUser, deleteUser } from '../../helpers/api/userApi'
 import { SignUpFormData, UserApi } from '../../types/forms'
 
 test.describe('User registration - positive', () => {
@@ -48,23 +46,13 @@ test.describe('User registration - positive', () => {
 })
 
 test.describe('User registration - negative', () => {
-    let user: UserApi
-
-    test.beforeEach(async ({ request }) => {
-        user = createUserApi()
-        await registerUser(request, user)
-    })
-
-    test.afterEach(async ({ request }) => {
-        await deleteUser(request, user)
-    })
     test(
         'Register User with existing email',
         { tag: ['@regression'] },
-        async ({ pageManager }) => {
+        async ({ pageManager, registeredUser }) => {
             const existingUserData: SignUpFormData = {
-                name: user.name,
-                email: user.email,
+                name: registeredUser.data.name,
+                email: registeredUser.data.email,
             }
             await pageManager.basePage.openPage('/')
             await pageManager.navBar.clickSignUpLogInButton()

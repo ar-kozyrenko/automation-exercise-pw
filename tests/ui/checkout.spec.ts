@@ -1,5 +1,4 @@
-import { test } from '../../fixtures/baseFixture'
-import { expect } from '@playwright/test'
+import { test, expect } from '../../fixtures/baseFixture'
 import {
     generateSignUpData,
     generateRegistrationData,
@@ -9,7 +8,7 @@ import {
     generatePaymentData,
 } from '../../test-data/general.test-data'
 import fs from 'fs'
-import { normalizePrice } from '../../helpers/ui/text.helper'
+import { normalizePrice } from '../../helpers/text.helper'
 import path from 'path'
 
 test.describe('Checkout - positive', () => {

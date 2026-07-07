@@ -1,6 +1,5 @@
-import { test } from '../../fixtures/baseFixture'
-import { expect } from '@playwright/test'
-import { normalizeText } from '../../helpers/ui/text.helper'
+import { test, expect } from '../../fixtures/baseFixture'
+import { normalizeText } from '../../helpers/text.helper'
 import {
     generateEmail,
     generateFirstName,
@@ -43,7 +42,6 @@ test(
             normalizeText(name).includes(normalizedSearch)
         )
         expect(matchedProducts.length).toBeGreaterThan(0)
-        console.log('Matched products:', matchedProducts)
     }
 )
 test(

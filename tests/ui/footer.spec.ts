@@ -1,5 +1,4 @@
-import { test } from '../../fixtures/baseFixture'
-import { expect } from '@playwright/test'
+import { test, expect } from '../../fixtures/baseFixture'
 import { generateEmail } from '../../test-data/general.test-data'
 
 test(
