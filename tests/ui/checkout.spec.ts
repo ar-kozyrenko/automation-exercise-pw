@@ -231,6 +231,12 @@ test.describe('Checkout - positive', () => {
         'Download Invoice after purchase order',
         { tag: ['@smoke', '@regression'] },
         async ({ pageManager, page }) => {
+            /* This is the heaviest flow in the suite (register → checkout →
+             * payment → download) run end-to-end against the live site. WebKit
+             * on CI is slow enough that the default budget is tight, so give
+             * only this outlier test extra headroom instead of inflating the
+             * whole project timeout. */
+            test.slow()
             const userSignUpData = generateSignUpData()
             const userRegistrationData = generateRegistrationData({
                 name: userSignUpData.name,
@@ -276,9 +282,8 @@ test.describe('Checkout - positive', () => {
                 )
             })
             await test.step('Download and Assert Invoice', async () => {
-                const downloadPromise = page.waitForEvent('download')
-                await pageManager.orderPlacedPage.downloadInvoiceButton.click()
-                const download = await downloadPromise
+                const download =
+                    await pageManager.orderPlacedPage.downloadInvoice()
                 const downloadPath = path.join(
                     'downloads',
                     download.suggestedFilename()
