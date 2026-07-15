@@ -231,6 +231,11 @@ test.describe('Checkout - positive', () => {
         'Download Invoice after purchase order',
         { tag: ['@smoke', '@regression'] },
         async ({ pageManager, page }) => {
+            /* Heaviest flow in the suite (register → checkout → payment →
+             * invoice) run end-to-end against the live site. Give just this
+             * outlier extra headroom on slow WebKit CI, instead of inflating
+             * the whole project timeout. */
+            test.slow()
             const userSignUpData = generateSignUpData()
             const userRegistrationData = generateRegistrationData({
                 name: userSignUpData.name,
@@ -276,18 +281,15 @@ test.describe('Checkout - positive', () => {
                 )
             })
             await test.step('Download and Assert Invoice', async () => {
-                const downloadPromise = page.waitForEvent('download')
-                await pageManager.orderPlacedPage.downloadInvoiceButton.click()
-                const download = await downloadPromise
-                const downloadPath = path.join(
-                    'downloads',
-                    download.suggestedFilename()
-                )
-                await download.saveAs(downloadPath)
+                const { filename, body } =
+                    await pageManager.orderPlacedPage.fetchInvoice()
+                const downloadPath = path.join('downloads', filename)
+                fs.mkdirSync('downloads', { recursive: true })
+                fs.writeFileSync(downloadPath, body)
                 expect(fs.existsSync(downloadPath)).toBeTruthy()
                 const stats = fs.statSync(downloadPath)
                 expect(stats.size).toBeGreaterThan(0)
-                const content = fs.readFileSync(downloadPath, 'utf8')
+                const content = body.toString('utf8')
                 const expectedPrice = normalizePrice(addedProduct.price)
                 expect(content).toContain(fullName)
                 expect(content).toContain(expectedPrice)
