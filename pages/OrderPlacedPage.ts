@@ -1,4 +1,4 @@
-import { Download, Locator, Page } from '@playwright/test'
+import { Locator, Page } from '@playwright/test'
 
 export class OrderPlacedPage {
     private readonly page: Page
@@ -24,21 +24,34 @@ export class OrderPlacedPage {
     }
 
     /**
-     * Clicks "Download Invoice" and resolves with the triggered download.
+     * Retrieves the invoice by requesting the "Download Invoice" link's target
+     * through the page's request context, rather than relying on a browser
+     * `download` event.
      *
-     * WebKit on CI (headless, against the live third-party site) is markedly
-     * slower to emit the `download` event than Chromium. To keep this robust:
-     *  - wait for the link to be actionable before clicking;
-     *  - arm the `download` listener *before* the click so the event is never
-     *    missed;
-     *  - bound the wait with an explicit timeout so a genuine hang fails fast
-     *    with a specific "download event" message instead of surfacing as an
-     *    opaque overall test timeout.
+     * WebKit headless on CI never emits the `download` event for this link
+     * (deterministic across retries), while Chromium does — so an event-based
+     * approach is inherently browser-dependent. `page.request` shares the
+     * page's cookies/session, so fetching the link's href returns the exact
+     * same invoice bytes deterministically on every browser.
      */
-    async downloadInvoice(timeout = 30_000): Promise<Download> {
+    async fetchInvoice(): Promise<{ filename: string; body: Buffer }> {
         await this.downloadInvoiceButton.waitFor({ state: 'visible' })
-        const downloadPromise = this.page.waitForEvent('download', { timeout })
-        await this.downloadInvoiceButton.click()
-        return downloadPromise
+        const href = await this.downloadInvoiceButton.getAttribute('href')
+        if (!href) {
+            throw new Error('"Download Invoice" link is missing an href')
+        }
+        const url = new URL(href, this.page.url()).toString()
+        const response = await this.page.request.get(url)
+        if (!response.ok()) {
+            throw new Error(
+                `Invoice request failed: ${response.status()} ${response.statusText()} (${url})`
+            )
+        }
+        const disposition = response.headers()['content-disposition'] ?? ''
+        const filename =
+            disposition.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i)?.[1] ??
+            url.split('/').pop() ??
+            'invoice.txt'
+        return { filename, body: await response.body() }
     }
 }

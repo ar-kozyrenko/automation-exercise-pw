@@ -231,11 +231,10 @@ test.describe('Checkout - positive', () => {
         'Download Invoice after purchase order',
         { tag: ['@smoke', '@regression'] },
         async ({ pageManager, page }) => {
-            /* This is the heaviest flow in the suite (register → checkout →
-             * payment → download) run end-to-end against the live site. WebKit
-             * on CI is slow enough that the default budget is tight, so give
-             * only this outlier test extra headroom instead of inflating the
-             * whole project timeout. */
+            /* Heaviest flow in the suite (register → checkout → payment →
+             * invoice) run end-to-end against the live site. Give just this
+             * outlier extra headroom on slow WebKit CI, instead of inflating
+             * the whole project timeout. */
             test.slow()
             const userSignUpData = generateSignUpData()
             const userRegistrationData = generateRegistrationData({
@@ -282,17 +281,15 @@ test.describe('Checkout - positive', () => {
                 )
             })
             await test.step('Download and Assert Invoice', async () => {
-                const download =
-                    await pageManager.orderPlacedPage.downloadInvoice()
-                const downloadPath = path.join(
-                    'downloads',
-                    download.suggestedFilename()
-                )
-                await download.saveAs(downloadPath)
+                const { filename, body } =
+                    await pageManager.orderPlacedPage.fetchInvoice()
+                const downloadPath = path.join('downloads', filename)
+                fs.mkdirSync('downloads', { recursive: true })
+                fs.writeFileSync(downloadPath, body)
                 expect(fs.existsSync(downloadPath)).toBeTruthy()
                 const stats = fs.statSync(downloadPath)
                 expect(stats.size).toBeGreaterThan(0)
-                const content = fs.readFileSync(downloadPath, 'utf8')
+                const content = body.toString('utf8')
                 const expectedPrice = normalizePrice(addedProduct.price)
                 expect(content).toContain(fullName)
                 expect(content).toContain(expectedPrice)
