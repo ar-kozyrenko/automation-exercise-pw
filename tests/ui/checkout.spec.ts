@@ -10,6 +10,14 @@ import {
 import fs from 'fs'
 import { normalizePrice } from '../../helpers/text.helper'
 import path from 'path'
+import { registerNewUserViaUI, deleteAccount } from '../../steps/user.steps'
+import { addFirstProductToCart } from '../../steps/cart.steps'
+import {
+    assertCheckoutHeadingsVisible,
+    assertAddressesMatch,
+    assertCartProductMatches,
+    placeOrderAndVerifyPayment,
+} from '../../steps/checkout.steps'
 
 test.describe('Checkout - positive', () => {
     test(
@@ -24,90 +32,44 @@ test.describe('Checkout - positive', () => {
 
             await test.step('Add product to cart', async () => {
                 await pageManager.basePage.openPage('/')
-                addedProduct =
-                    await pageManager.homePage.productSection.getProductNameAndPrice(
-                        0
-                    )
-                await pageManager.homePage.productSection.addProductToCart(0)
-                await pageManager.addedToCartModal.clickViewCartButton()
-                await expect(page).toHaveURL(/\/view_cart\/?$/)
+                addedProduct = await addFirstProductToCart(pageManager, page)
             })
 
             await test.step('Register user during checkout', async () => {
                 await pageManager.cartPage.clickProceedToCheckout()
                 await pageManager.checkoutModal.clickRegisterLoginButton()
-                await pageManager.loginPage.submitSignUpForm(userSignUpData)
-                await pageManager.registerPage.fillRegistrationForm(
+                await registerNewUserViaUI(
+                    pageManager,
+                    userSignUpData,
                     userRegistrationData
                 )
-                await pageManager.registerPage.clickCreateAccountButton()
-                await expect(
-                    pageManager.registerPage.accountCreatedHeading
-                ).toBeVisible()
-                await pageManager.basePage.clickContinueButton()
-                await expect(
-                    pageManager.navBar.getLoggedInAsUserButton(
-                        userRegistrationData.name
-                    )
-                ).toBeVisible()
             })
 
             await test.step('Verify checkout details', async () => {
                 await pageManager.navBar.clickCartButton()
                 await pageManager.cartPage.clickProceedToCheckout()
                 await expect(page).toHaveURL(/\/checkout\/?$/)
-                await expect(
-                    pageManager.checkoutPage.addressDetailsHeading
-                ).toBeVisible()
-                await expect(
-                    pageManager.checkoutPage.yourDeliveryAddressHeading
-                ).toBeVisible()
-                await expect(
-                    pageManager.checkoutPage.yourBillingAddressHeading
-                ).toBeVisible()
-                await pageManager.checkoutPage.assertDeliveryAddressContains(
-                    userRegistrationData
+                await assertCheckoutHeadingsVisible(pageManager)
+                await assertAddressesMatch(pageManager, userRegistrationData)
+                await assertCartProductMatches(
+                    pageManager,
+                    addedProduct,
+                    'Rs. 500'
                 )
-                await pageManager.checkoutPage.assertBillingAddressContains(
-                    userRegistrationData
-                )
-                const cartProduct =
-                    await pageManager.checkoutPage.cartTable.getProductNamePriceQtyTotalPrice(
-                        0
-                    )
-                expect(cartProduct).toMatchObject({
-                    name: addedProduct.name,
-                    price: addedProduct.price,
-                    quantity: '1',
-                    total: 'Rs. 500',
-                })
             })
 
             await test.step('Place order and verify successful payment', async () => {
                 const text = generateRandomText()
-                await pageManager.checkoutPage.addComment(text)
-                await expect(pageManager.checkoutPage.commentField).toHaveValue(
-                    text
+                await placeOrderAndVerifyPayment(
+                    pageManager,
+                    page,
+                    text,
+                    generatePaymentData()
                 )
-                await pageManager.checkoutPage.clickPlaceOrder()
-                const cartData = generatePaymentData()
-                await pageManager.paymentPage.fillPaymentForm(cartData)
-                await pageManager.paymentPage.clickPayAndConfirmButton()
-                await expect(
-                    pageManager.orderPlacedPage.orderPlacedHeading
-                ).toBeVisible()
-                await expect(
-                    pageManager.orderPlacedPage.orderConfirmedText
-                ).toBeVisible()
-                await expect(page).toHaveURL(/\/payment_done\/\d+$/)
             })
 
             await test.step('Delete account', async () => {
-                await pageManager.navBar.clickDeleteAccountButton()
-                await expect(
-                    pageManager.deleteAccountPage.accountDeletedHeading
-                ).toBeVisible()
-                await pageManager.basePage.clickContinueButton()
+                await deleteAccount(pageManager)
             })
         }
     )
@@ -125,77 +87,39 @@ test.describe('Checkout - positive', () => {
             await test.step('Register user', async () => {
                 await pageManager.basePage.openPage('/')
                 await pageManager.navBar.clickSignUpLogInButton()
-                await pageManager.loginPage.submitSignUpForm(userSignUpData)
-                await pageManager.registerPage.fillRegistrationForm(
+                await registerNewUserViaUI(
+                    pageManager,
+                    userSignUpData,
                     userRegistrationData
                 )
-                await pageManager.registerPage.clickCreateAccountButton()
-                await expect(
-                    pageManager.registerPage.accountCreatedHeading
-                ).toBeVisible()
-                await pageManager.basePage.clickContinueButton()
-                await expect(
-                    pageManager.navBar.getLoggedInAsUserButton(
-                        userRegistrationData.name
-                    )
-                ).toBeVisible()
             })
             await test.step('Add product to cart', async () => {
-                addedProduct =
-                    await pageManager.homePage.productSection.getProductNameAndPrice(
-                        0
-                    )
-                await pageManager.homePage.productSection.addProductToCart(0)
-                await pageManager.addedToCartModal.clickViewCartButton()
-                await expect(page).toHaveURL(/\/view_cart\/?$/)
+                addedProduct = await addFirstProductToCart(pageManager, page)
             })
 
             await test.step('Verify checkout details', async () => {
                 await pageManager.cartPage.clickProceedToCheckout()
                 await expect(page).toHaveURL(/\/checkout\/?$/)
-                await pageManager.checkoutPage.assertDeliveryAddressContains(
-                    userRegistrationData
+                await assertAddressesMatch(pageManager, userRegistrationData)
+                await assertCartProductMatches(
+                    pageManager,
+                    addedProduct,
+                    'Rs. 500'
                 )
-                await pageManager.checkoutPage.assertBillingAddressContains(
-                    userRegistrationData
-                )
-                const cartProduct =
-                    await pageManager.checkoutPage.cartTable.getProductNamePriceQtyTotalPrice(
-                        0
-                    )
-                expect(cartProduct).toMatchObject({
-                    name: addedProduct.name,
-                    price: addedProduct.price,
-                    quantity: '1',
-                    total: 'Rs. 500',
-                })
             })
 
             await test.step('Place order and verify successful payment', async () => {
                 const text = generateRandomText()
-                await pageManager.checkoutPage.addComment(text)
-                await expect(pageManager.checkoutPage.commentField).toHaveValue(
-                    text
+                await placeOrderAndVerifyPayment(
+                    pageManager,
+                    page,
+                    text,
+                    generatePaymentData()
                 )
-                await pageManager.checkoutPage.clickPlaceOrder()
-                const cartData = generatePaymentData()
-                await pageManager.paymentPage.fillPaymentForm(cartData)
-                await pageManager.paymentPage.clickPayAndConfirmButton()
-                await expect(
-                    pageManager.orderPlacedPage.orderPlacedHeading
-                ).toBeVisible()
-                await expect(
-                    pageManager.orderPlacedPage.orderConfirmedText
-                ).toBeVisible()
-                await expect(page).toHaveURL(/\/payment_done\/\d+$/)
             })
 
             await test.step('Delete account', async () => {
-                await pageManager.navBar.clickDeleteAccountButton()
-                await expect(
-                    pageManager.deleteAccountPage.accountDeletedHeading
-                ).toBeVisible()
-                await pageManager.basePage.clickContinueButton()
+                await deleteAccount(pageManager)
             })
         }
     )
@@ -213,20 +137,11 @@ test.describe('Checkout - positive', () => {
             await test.step('Register user - pre-condition', async () => {
                 await pageManager.basePage.openPage('/')
                 await pageManager.navBar.clickSignUpLogInButton()
-                await pageManager.loginPage.submitSignUpForm(userSignUpData)
-                await pageManager.registerPage.fillRegistrationForm(
+                await registerNewUserViaUI(
+                    pageManager,
+                    userSignUpData,
                     userRegistrationData
                 )
-                await pageManager.registerPage.clickCreateAccountButton()
-                await expect(
-                    pageManager.registerPage.accountCreatedHeading
-                ).toBeVisible()
-                await pageManager.basePage.clickContinueButton()
-                await expect(
-                    pageManager.navBar.getLoggedInAsUserButton(
-                        userRegistrationData.name
-                    )
-                ).toBeVisible()
             })
             await test.step('Logout user - pre-condition', async () => {
                 await pageManager.navBar.clickLogOutButton()
@@ -246,61 +161,32 @@ test.describe('Checkout - positive', () => {
                 ).toBeVisible()
             })
             await test.step('Add product to cart', async () => {
-                addedProduct =
-                    await pageManager.homePage.productSection.getProductNameAndPrice(
-                        0
-                    )
-                await pageManager.homePage.productSection.addProductToCart(0)
-                await pageManager.addedToCartModal.clickViewCartButton()
-                await expect(page).toHaveURL(/\/view_cart\/?$/)
+                addedProduct = await addFirstProductToCart(pageManager, page)
             })
 
             await test.step('Verify checkout details', async () => {
                 await pageManager.cartPage.clickProceedToCheckout()
                 await expect(page).toHaveURL(/\/checkout\/?$/)
-                await pageManager.checkoutPage.assertDeliveryAddressContains(
-                    userRegistrationData
+                await assertAddressesMatch(pageManager, userRegistrationData)
+                await assertCartProductMatches(
+                    pageManager,
+                    addedProduct,
+                    'Rs. 500'
                 )
-                await pageManager.checkoutPage.assertBillingAddressContains(
-                    userRegistrationData
-                )
-                const cartProduct =
-                    await pageManager.checkoutPage.cartTable.getProductNamePriceQtyTotalPrice(
-                        0
-                    )
-                expect(cartProduct).toMatchObject({
-                    name: addedProduct.name,
-                    price: addedProduct.price,
-                    quantity: '1',
-                    total: 'Rs. 500',
-                })
             })
 
             await test.step('Place order and verify successful payment', async () => {
                 const text = generateRandomText()
-                await pageManager.checkoutPage.addComment(text)
-                await expect(pageManager.checkoutPage.commentField).toHaveValue(
-                    text
+                await placeOrderAndVerifyPayment(
+                    pageManager,
+                    page,
+                    text,
+                    generatePaymentData()
                 )
-                await pageManager.checkoutPage.clickPlaceOrder()
-                const cartData = generatePaymentData()
-                await pageManager.paymentPage.fillPaymentForm(cartData)
-                await pageManager.paymentPage.clickPayAndConfirmButton()
-                await expect(
-                    pageManager.orderPlacedPage.orderPlacedHeading
-                ).toBeVisible()
-                await expect(
-                    pageManager.orderPlacedPage.orderConfirmedText
-                ).toBeVisible()
-                await expect(page).toHaveURL(/\/payment_done\/\d+$/)
             })
 
             await test.step('Delete account', async () => {
-                await pageManager.navBar.clickDeleteAccountButton()
-                await expect(
-                    pageManager.deleteAccountPage.accountDeletedHeading
-                ).toBeVisible()
-                await pageManager.basePage.clickContinueButton()
+                await deleteAccount(pageManager)
             })
         }
     )
@@ -315,20 +201,11 @@ test.describe('Checkout - positive', () => {
             await test.step('Register user', async () => {
                 await pageManager.basePage.openPage('/')
                 await pageManager.navBar.clickSignUpLogInButton()
-                await pageManager.loginPage.submitSignUpForm(userSignUpData)
-                await pageManager.registerPage.fillRegistrationForm(
+                await registerNewUserViaUI(
+                    pageManager,
+                    userSignUpData,
                     userRegistrationData
                 )
-                await pageManager.registerPage.clickCreateAccountButton()
-                await expect(
-                    pageManager.registerPage.accountCreatedHeading
-                ).toBeVisible()
-                await pageManager.basePage.clickContinueButton()
-                await expect(
-                    pageManager.navBar.getLoggedInAsUserButton(
-                        userRegistrationData.name
-                    )
-                ).toBeVisible()
             })
             await test.step('Add product to cart', async () => {
                 await pageManager.homePage.productSection.addProductToCart(0)
@@ -345,12 +222,7 @@ test.describe('Checkout - positive', () => {
                 ).toBeEnabled()
                 await pageManager.cartPage.clickProceedToCheckout()
                 await expect(page).toHaveURL(/\/checkout\/?$/)
-                await pageManager.checkoutPage.assertDeliveryAddressContains(
-                    userRegistrationData
-                )
-                await pageManager.checkoutPage.assertBillingAddressContains(
-                    userRegistrationData
-                )
+                await assertAddressesMatch(pageManager, userRegistrationData)
             })
         }
     )
@@ -368,82 +240,40 @@ test.describe('Checkout - positive', () => {
 
             await test.step('Add product to cart', async () => {
                 await pageManager.basePage.openPage('/')
-                addedProduct =
-                    await pageManager.homePage.productSection.getProductNameAndPrice(
-                        0
-                    )
-                await pageManager.homePage.productSection.addProductToCart(0)
-                await pageManager.addedToCartModal.clickViewCartButton()
-                await expect(page).toHaveURL(/\/view_cart\/?$/)
+                addedProduct = await addFirstProductToCart(pageManager, page)
             })
 
             await test.step('Register user during checkout', async () => {
                 await pageManager.cartPage.clickProceedToCheckout()
                 await pageManager.checkoutModal.clickRegisterLoginButton()
-                await pageManager.loginPage.submitSignUpForm(userSignUpData)
-                await pageManager.registerPage.fillRegistrationForm(
+                await registerNewUserViaUI(
+                    pageManager,
+                    userSignUpData,
                     userRegistrationData
                 )
-                await pageManager.registerPage.clickCreateAccountButton()
-                await expect(
-                    pageManager.registerPage.accountCreatedHeading
-                ).toBeVisible()
-                await pageManager.basePage.clickContinueButton()
-                await expect(
-                    pageManager.navBar.getLoggedInAsUserButton(
-                        userRegistrationData.name
-                    )
-                ).toBeVisible()
             })
 
             await test.step('Verify checkout details', async () => {
                 await pageManager.navBar.clickCartButton()
                 await pageManager.cartPage.clickProceedToCheckout()
                 await expect(page).toHaveURL(/\/checkout\/?$/)
-                await expect(
-                    pageManager.checkoutPage.addressDetailsHeading
-                ).toBeVisible()
-                await expect(
-                    pageManager.checkoutPage.yourDeliveryAddressHeading
-                ).toBeVisible()
-                await expect(
-                    pageManager.checkoutPage.yourBillingAddressHeading
-                ).toBeVisible()
-                await pageManager.checkoutPage.assertDeliveryAddressContains(
-                    userRegistrationData
+                await assertCheckoutHeadingsVisible(pageManager)
+                await assertAddressesMatch(pageManager, userRegistrationData)
+                await assertCartProductMatches(
+                    pageManager,
+                    addedProduct,
+                    'Rs. 500'
                 )
-                await pageManager.checkoutPage.assertBillingAddressContains(
-                    userRegistrationData
-                )
-                const cartProduct =
-                    await pageManager.checkoutPage.cartTable.getProductNamePriceQtyTotalPrice(
-                        0
-                    )
-                expect(cartProduct).toMatchObject({
-                    name: addedProduct.name,
-                    price: addedProduct.price,
-                    quantity: '1',
-                    total: 'Rs. 500',
-                })
             })
 
             await test.step('Place order and verify successful payment', async () => {
                 const text = generateRandomText()
-                await pageManager.checkoutPage.addComment(text)
-                await expect(pageManager.checkoutPage.commentField).toHaveValue(
-                    text
+                await placeOrderAndVerifyPayment(
+                    pageManager,
+                    page,
+                    text,
+                    generatePaymentData()
                 )
-                await pageManager.checkoutPage.clickPlaceOrder()
-                const cartData = generatePaymentData()
-                await pageManager.paymentPage.fillPaymentForm(cartData)
-                await pageManager.paymentPage.clickPayAndConfirmButton()
-                await expect(
-                    pageManager.orderPlacedPage.orderPlacedHeading
-                ).toBeVisible()
-                await expect(
-                    pageManager.orderPlacedPage.orderConfirmedText
-                ).toBeVisible()
-                await expect(page).toHaveURL(/\/payment_done\/\d+$/)
             })
             await test.step('Download and Assert Invoice', async () => {
                 const downloadPromise = page.waitForEvent('download')
@@ -466,11 +296,7 @@ test.describe('Checkout - positive', () => {
             })
 
             await test.step('Delete account', async () => {
-                await pageManager.navBar.clickDeleteAccountButton()
-                await expect(
-                    pageManager.deleteAccountPage.accountDeletedHeading
-                ).toBeVisible()
-                await pageManager.basePage.clickContinueButton()
+                await deleteAccount(pageManager)
             })
         }
     )

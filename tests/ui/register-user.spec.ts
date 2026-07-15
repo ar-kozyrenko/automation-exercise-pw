@@ -2,9 +2,9 @@ import { test, expect } from '../../fixtures/baseFixture'
 import {
     generateSignUpData,
     generateRegistrationData,
-    createUserApi,
 } from '../../test-data/register-user.data'
-import { SignUpFormData, UserApi } from '../../types/forms'
+import { SignUpFormData } from '../../types/forms'
+import { deleteAccount } from '../../steps/user.steps'
 
 test.describe('User registration - positive', () => {
     test(
@@ -36,11 +36,7 @@ test.describe('User registration - positive', () => {
                     userRegistrationData.name
                 )
             ).toBeVisible()
-            await pageManager.navBar.clickDeleteAccountButton()
-            await expect(
-                pageManager.deleteAccountPage.accountDeletedHeading
-            ).toBeVisible()
-            await pageManager.basePage.clickContinueButton()
+            await deleteAccount(pageManager)
         }
     )
 })

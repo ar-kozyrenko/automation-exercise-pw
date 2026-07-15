@@ -1,5 +1,5 @@
 import { APIResponse } from '@playwright/test'
-import { BaseApi } from '../client/ApiClient'
+import { BaseApi } from '../client/apiClient'
 
 export class BrandController extends BaseApi {
     protected brandListEndpoint: string = '/brandsList'

@@ -1,6 +1,6 @@
 import { Locator, Page } from '@playwright/test'
 import { expect } from '@playwright/test'
-import { RegistrationFormData, UserApi } from '../types/forms'
+import { RegistrationFormData } from '../types/forms'
 import { CartTable } from './components/CartTable'
 
 export class CheckoutPage {
@@ -49,10 +49,10 @@ export class CheckoutPage {
         await expect(addressBlock).toContainText(data.mobileNumber)
     }
     async assertDeliveryAddressContains(data: RegistrationFormData) {
-        this.assertAddressContains(this.deliveryAddressBlock, data)
+        await this.assertAddressContains(this.deliveryAddressBlock, data)
     }
     async assertBillingAddressContains(data: RegistrationFormData) {
-        this.assertAddressContains(this.billingAddressBlock, data)
+        await this.assertAddressContains(this.billingAddressBlock, data)
     }
 
     async addComment(text: string): Promise<void> {

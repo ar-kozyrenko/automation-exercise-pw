@@ -22,12 +22,15 @@ export default defineConfig({
     /* Opt out of parallel tests on CI. */
     workers: process.env.CI ? 1 : undefined,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-    reporter: 'html',
+    reporter: process.env.CI
+        ? [['github'], ['html', { open: 'never' }]]
+        : 'html',
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {
         /* Base URL to use in actions like `await page.goto('')`. */
         baseURL: process.env.BASE_URL || 'https://www.automationexercise.com',
-        headless: false,
+        /* Headed locally for debugging, always headless on CI. */
+        headless: !!process.env.CI,
         screenshot: 'only-on-failure',
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'retain-on-failure',
@@ -37,18 +40,26 @@ export default defineConfig({
     /* Configure projects for major browsers */
     projects: [
         {
+            /* API tests only use Playwright's request context, no browser. */
+            name: 'api',
+            testDir: './tests/api',
+        },
+
+        {
             name: 'chromium',
+            testDir: './tests/ui',
             use: { ...devices['Desktop Chrome'] },
+        },
+
+        {
+            name: 'webkit',
+            testDir: './tests/ui',
+            use: { ...devices['Desktop Safari'] },
         },
 
         // {
         //   name: 'firefox',
         //   use: { ...devices['Desktop Firefox'] },
-        // },
-
-        // {
-        //   name: 'webkit',
-        //   use: { ...devices['Desktop Safari'] },
         // },
 
         /* Test against mobile viewports. */
