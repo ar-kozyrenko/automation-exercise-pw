@@ -55,6 +55,10 @@ export default defineConfig({
             name: 'webkit',
             testDir: './tests/ui',
             use: { ...devices['Desktop Safari'] },
+            /* WebKit runs measurably slower than Chromium against this live
+             * third-party site on CI; give only this project extra headroom
+             * rather than inflating the timeout for Chromium/API as well. */
+            timeout: process.env.CI ? 60_000 : 30_000,
         },
 
         // {

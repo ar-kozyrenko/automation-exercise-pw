@@ -18,6 +18,6 @@ export class OrderPlacedPage {
     }
 
     async clickDownloadInvoiceButton(): Promise<void> {
-        this.downloadInvoiceButton.click()
+        await this.downloadInvoiceButton.click()
     }
 }
